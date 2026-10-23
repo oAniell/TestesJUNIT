@@ -1,7 +1,7 @@
 target/
 *.log
 
-# Pacote de entrega (gerado por gerar-entrega.ps1)
+# Pacote de entrega e artefatos empacotados
 entrega/
 *.zip
 

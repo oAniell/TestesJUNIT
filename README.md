@@ -26,8 +26,7 @@ produção de camisetas por lote, emissão da nota fiscal e preparação do lote
 8. [Cobertura dos testes (Coverage)](#8-cobertura-dos-testes-coverage)
 9. [Relatórios web](#9-relatórios-web)
 10. [Logs de execução no terminal](#10-logs-de-execução-no-terminal)
-11. [Pacote de entrega](#11-pacote-de-entrega)
-12. [Roteiro de apresentação](#12-roteiro-de-apresentação)
+11. [Mapa dos critérios de avaliação](#11-mapa-dos-critérios-de-avaliação)
 
 ---
 
@@ -60,8 +59,8 @@ Com o projeto dentro de uma pasta sincronizada, o processo de sincronização ma
 Failed to clean project: Failed to delete ...\target\classes\br\com\camisetas\dominio
 ```
 
-Por isso **nem o `demo.ps1` nem o `gerar-entrega.ps1` rodam `clean` por padrão**: quando a
-limpeza é solicitada, ela é tentada três vezes e o build segue mesmo se falhar, com aviso. As
+Por isso **o `demo.ps1` não roda `clean` por padrão**: quando a limpeza é solicitada, ela é
+tentada três vezes e o build segue mesmo se falhar, com aviso. As
 fases `verify` e `site` reescrevem os relatórios de qualquer forma, então o resultado continua
 correto.
 
@@ -101,8 +100,8 @@ mvn -o clean verify site      # testes + cobertura + relatórios em ~14 s
 
 A flag `-o` é necessária: sem ela o Maven tenta revalidar os artefatos nos repositórios
 remotos e fica esperando timeout quando não há rede. Em uma máquina que **nunca** rodou o
-build, as dependências precisam ser baixadas uma vez — nesse caso use os relatórios HTML já
-gerados em `entrega/`, que abrem em qualquer navegador sem Java nem Maven.
+build, as dependências precisam ser baixadas uma vez — a partir daí a execução offline
+funciona.
 
 ---
 
@@ -183,8 +182,7 @@ br/com/camisetas/bdd/features
 pom.xml               // dependências, plugins, regra de cobertura mínima
 README.md             // esta documentação
 relatorios.html       // painel com indicadores e links dos 3 relatórios
-demo.ps1              // execução com emoji, para a apresentação (ver seção 10.3)
-gerar-entrega.ps1     // build + empacotamento da entrega (ver seção 11)
+demo.ps1              // execução dos testes com marcadores em emoji (ver seção 10.3)
 .gitignore            // ignora target/, entrega/ e *.zip
 ```
 
@@ -714,8 +712,8 @@ Também são gerados `target/cucumber-reports/cucumber.json` e
 
 ## 10. Logs de execução no terminal
 
-A execução imprime o andamento com marcadores visuais, o que torna a conferência ao vivo
-imediata — sem precisar abrir relatório para saber se passou.
+A execução imprime o andamento com marcadores visuais, então o resultado é conferível direto
+no terminal, sem precisar abrir relatório para saber se passou.
 
 Três peças sustentam isso:
 
@@ -821,125 +819,40 @@ Duas observações relacionadas:
 
 ---
 
-## 11. Pacote de entrega
+## 11. Mapa dos critérios de avaliação
 
-```powershell
-.\gerar-entrega.ps1              # build completo + empacotamento
-.\gerar-entrega.ps1 -PularBuild  # reaproveita o target/ atual
-.\gerar-entrega.ps1 -SemEmoji    # marcadores ASCII, para terminais antigos
-```
+Onde encontrar, no repositório, a evidência de cada critério do enunciado.
 
-O script roda `mvn clean verify site`, copia os relatórios para caminhos estáveis, reescreve os
-links do painel, empacota o código-fonte, **confere item por item** e só então gera
-`camisetas-sa-tdd-bdd-junit.zip`. Se qualquer etapa falhar, ele aborta sem produzir pacote.
+| Critério | Evidência no repositório | Seção |
+|---|---|---|
+| Organização e estrutura dos testes | `src/test/java` espelhando os pacotes de `src/main/java`; 11 grupos `@Nested`; massa de teste centralizada em `suporte/CenarioFabrica.java` | [2](#2-estrutura-dos-pacotes) |
+| Cobertura dos objetivos do enunciado | as 4 classes do cenário (`Lote`, `ItemLote`, `NotaFiscal`, `Despacho`) com suíte dedicada, mais o fluxo integrado | [3](#3-classes-testadas--objetivos-do-enunciado) |
+| Uso de anotações JUnit | 20 anotações do JUnit 5 em uso, incluindo as personalizadas `@TesteDeDominio` e `@TesteDeIntegracao` (`src/test/java/br/com/camisetas/suporte/`) | [5](#5-anotações-junit-utilizadas) |
+| Assertivas | 12 famílias de assertivas, com `assertThrows` sobre exceções do próprio domínio e inspeção dos dados de contexto da exceção (`getCapacidade()`, `getQuantidadeSolicitada()`) | [4.3](#43-objetivo-1--regra-de-capacidade-com-exceção-personalizada), [6](#6-assertivas-utilizadas) |
+| Estrutura BDD | 5 arquivos `.feature` em Gherkin português, 37 cenários, 4 classes de passos e contexto injetado por PicoContainer | [7](#7-estrutura-bdd-cucumber) |
+| Cobertura de código | JaCoCo em 100% de instruções, desvios, linhas e métodos, com limite mínimo exigido no `pom.xml` (o build falha abaixo dele) | [8](#8-cobertura-dos-testes-coverage) |
+| Entrega do relatório | `relatorios.html` como painel e os três relatórios HTML gerados pelo build (Surefire, JaCoCo, Cucumber) | [9](#9-relatórios-web) |
 
-```text
-  ▶ Etapa 5/5: Conferindo o conteudo e gerando o pacote final
-     ✅ Painel de navegacao                              index.html
-     ✅ Documentacao da parte pratica                    RELATORIO.md
-     ✅ Relatorio de execucao dos testes                 relatorios\site\surefire-report.html
-     ✅ Relatorio de cobertura (JaCoCo)                  relatorios\site\jacoco\index.html
-     ✅ Relatorio dos cenarios BDD                       relatorios\cucumber\relatorio-cucumber.html
-     ✅ Codigo-fonte do projeto                          camisetas-sa-codigo-fonte.zip
-     ✅ Todos os links do painel resolvem para arquivos existentes
-     ✅ Pacote gerado: camisetas-sa-tdd-bdd-junit.zip
-```
+### Equivalência com as anotações do JUnit 4 citadas no enunciado
 
-Estrutura gerada em `entrega/`:
+O enunciado menciona anotações do JUnit 4. O projeto usa JUnit 5, onde elas têm equivalentes
+diretos, todos presentes no código:
 
-```
-entrega/
-├── index.html                      painel com indicadores e links
-├── RELATORIO.md                    esta documentação
-├── camisetas-sa-codigo-fonte.zip   pom.xml + src/ completo
-└── relatorios/
-    ├── site/                       Surefire Report + JaCoCo + CSS
-    └── cucumber/                   HTML + cucumber.json + cucumber-junit.xml
-```
+| JUnit 4 (enunciado) | JUnit 5 (projeto) | Exemplo |
+|---|---|---|
+| `@BeforeClass` / `@AfterClass` | `@BeforeAll` / `@AfterAll` | `LoteTest`, `DespachoTest` |
+| `@Before` / `@After` | `@BeforeEach` / `@AfterEach` | `NotaFiscalTest` |
+| `@Ignore` | `@Disabled` | `ItemLoteTest.deveCalcularValorTotalDoItem` |
+| `@Test(expected = ...)` | `assertThrows` | `LoteTest.deveRejeitarCadastroQueExcedeCapacidade` |
+| `@Test(timeout = ...)` | `assertTimeout` | `LoteTest.cadastroDeMuitosItensDeveSerRapido` |
 
-O motivo de copiar os relatórios: eles são gerados em `target/`, que é descartável e está no
-`.gitignore`. Zipar apenas o projeto entregaria um painel com todos os links quebrados.
+### Ciclo TDD aplicado
 
----
+Exemplo concreto do Red-Green-Refactor seguido na regra de capacidade do lote:
 
-## 12. Roteiro de apresentação
-
-A apresentação segue a ordem dos critérios de avaliação, e não a ordem do código, para que
-cada item possa ser pontuado sem precisar procurar.
-
-| Bloco | Critério avaliado | Tempo | O que mostrar |
-|---|---|---|---|
-| Abertura | — | 1 min | `relatorios.html`: 182 testes, 0 falhas, 100% de cobertura |
-| 1. Cenário e estrutura | Organização e Estrutura dos Testes | 2 min | árvore de pastas: 4 classes do enunciado e os testes espelhando os pacotes |
-| 2. Anotações JUnit | Uso de Anotações JUnit | 3 min | `LoteTest` e `DespachoTest` (seções 4.1 a 4.3 e 4.7) |
-| 3. Assertivas | Assertivas | 3 min | seções 4.3, 4.6 e 4.9 |
-| 4. BDD | Estrutura BDD | 3 min | `nota_fiscal.feature` ao lado de `PassosNotaFiscal` (seções 7.2 a 7.4) |
-| 5. Execução e cobertura | Cobertura dos Testes | 2 min | `mvn -o test` ao vivo + JaCoCo navegando até uma classe |
-| 6. Relatórios | Entrega do Relatório | 1 min | os três relatórios a partir do painel |
-
-### 12.1 Pontos que decidem a nota
-
-- **Bloco 2:** citar explicitamente a anotação personalizada `@TesteDeDominio`
-  (`suporte/TesteDeDominio.java`) — é o que diferencia o nível máximo do critério.
-- **Bloco 3:** mostrar `assertThrows` sobre **exceções do próprio domínio** e a inspeção dos
-  dados de contexto (`getCapacidade()`, `getQuantidadeSolicitada()`), não apenas o tipo da
-  exceção.
-- **Bloco 4:** ler um cenário em voz alta. O Gherkin em português se explica sozinho, e é
-  exatamente isso que o critério avalia.
-- **Bloco 5:** entrar em uma classe no JaCoCo e mostrar o código verde linha a linha. O número
-  100% convence menos que o fonte colorido.
-
-### 12.2 Demonstração ao vivo
-
-```powershell
-mvn -o test        # ~6 s, imprime os logs com ✅ e o resumo final
-```
-
-Preparação, na ordem:
-
-1. Rodar `mvn -o clean verify site` **antes** da apresentação, para popular `target/` e deixar
-   os relatórios prontos.
-2. Abrir as abas: `relatorios.html`, JaCoCo, Surefire Report e Cucumber.
-3. Aumentar a fonte do terminal e rodar `cls` antes da demo.
-4. Deixar abertos na IDE: `LoteTest`, `DespachoTest`, `NotaFiscalTest`,
-   `nota_fiscal.feature`, `PassosNotaFiscal` e `pom.xml`.
-
-Plano B: se o build ao vivo falhar, os relatórios já estão abertos nas abas e a apresentação
-continua sem interrupção. Nunca apresente dependendo de um build que ainda não rodou naquela
-máquina — em máquina sem `~/.m2` populado e sem internet, nada compila (ver seção 1).
-
-### 12.3 Divisão entre três apresentadores
-
-| Pessoa | Blocos |
-|---|---|
-| 1 | Abertura, estrutura e anotações JUnit |
-| 2 | Assertivas e BDD |
-| 3 | Execução ao vivo, cobertura e relatórios |
-
-Quem apresenta o bloco 5 deve ser quem rodou o build antes — é quem sabe reagir se algo falhar.
-
-### 12.4 Perguntas prováveis
-
-**"Por que JUnit 5, se o enunciado cita `@BeforeClass` e `@Ignore`?"**
-Essas anotações são do JUnit 4. Os equivalentes no JUnit 5 são `@BeforeAll` e `@Disabled`, e
-ambos estão no projeto (`ItemLoteTest`).
-
-**"Onde está o TDD, se o código já existe?"**
-Explicar o ciclo Red-Green-Refactor com um caso concreto: o teste
-`deveRejeitarCadastroQueExcedeCapacidade` foi escrito esperando a exceção (red), depois veio a
-validação em `Lote.adicionarItem` (green) e por fim a extração de `getQuantidadeCadastrada()`
-(refactor).
-
-**"Como chegaram a 100% de cobertura?"**
-Toda validação de entrada tem teste de recusa, `equals`/`hashCode`/`toString` têm teste
-próprio, os enums são varridos com `@EnumSource` e a hierarquia de exceções tem suíte dedicada
-(`ExcecoesDeNegocioTest`). A cobertura de desvios em 100% indica que os dois lados de cada
-`if` foram exercitados.
-
-**"Qual a diferença entre os testes JUnit e os cenários Cucumber aqui?"**
-JUnit verifica unidade e contrato técnico; Cucumber descreve comportamento de negócio na
-linguagem do cliente. Os 37 cenários cobrem os mesmos 4 objetivos por outra lente.
-
-**"Cobertura de 100% significa que não há bugs?"**
-Não. Cobertura mostra o que foi executado, não o que foi verificado. Por isso cada teste do
-projeto carrega assertivas explícitas de comportamento, e não apenas chamadas aos métodos.
+1. **Red** — `deveRejeitarCadastroQueExcedeCapacidade` escrito esperando
+   `CapacidadeLoteExcedidaException`, falhando porque a exceção ainda não existia.
+2. **Green** — validação de capacidade implementada em `Lote.adicionarItem`, com a exceção
+   carregando capacidade e quantidade solicitada.
+3. **Refactor** — extração de `getQuantidadeCadastrada()` e `getQuantidadeRestante()`, mantendo
+   os testes verdes.
