@@ -108,8 +108,28 @@ try {
         }
         Escrever-Sucesso 'Relatorios encontrados em target/'
     } else {
-        Escrever-Etapa 'Executando mvn clean verify site (testes + cobertura + relatorios)'
-        & mvn -B clean verify site
+        Escrever-Etapa 'Executando o build (testes + cobertura + relatorios)'
+
+        # Em pasta sincronizada (OneDrive, Dropbox) o processo de sincronizacao mantem
+        # handles abertos em target/ e o 'clean' falha com "Failed to delete". A limpeza
+        # e tentada algumas vezes; se nao der, o build segue e o aviso fica registrado.
+        $limpou = $false
+        for ($tentativa = 1; $tentativa -le 3 -and -not $limpou; $tentativa++) {
+            & mvn -B clean | Out-Null
+            if ($LASTEXITCODE -eq 0) {
+                $limpou = $true
+            } else {
+                Start-Sleep -Seconds 2
+            }
+        }
+        if ($limpou) {
+            Escrever-Sucesso 'Pasta target/ limpa'
+        } else {
+            Write-Host '     ! Nao foi possivel limpar target/ (arquivo travado por outro processo).' -ForegroundColor Yellow
+            Write-Host '       Se o projeto estiver no OneDrive, pause a sincronizacao para um build limpo.' -ForegroundColor Yellow
+        }
+
+        & mvn -B verify site
         if ($LASTEXITCODE -ne 0) {
             throw "O build falhou (codigo $LASTEXITCODE). Corrija os testes antes de gerar a entrega."
         }

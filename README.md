@@ -41,12 +41,36 @@ mvn clean verify site
 Para a execução com os marcadores visuais em emoji (terminal Windows), use o script:
 
 ```powershell
-.\demo.ps1                        # testes com emoji, offline, ~6 s
-.\demo.ps1 -Completo -ComRelatorios   # build completo + abre o painel no navegador
+.\demo.ps1                             # testes com emoji, offline, ~12 s
+.\demo.ps1 -Completo                   # + cobertura e os 3 relatórios web, ~15 s
+.\demo.ps1 -Completo -ComRelatorios    # idem, abrindo o painel no navegador
+.\demo.ps1 -SemEmoji                   # marcadores [OK] / [X]
+.\demo.ps1 -Limpar                     # apaga target/ antes (ver observação abaixo)
 ```
 
 O script ajusta o terminal para UTF-8 antes de rodar — sem isso o Windows substitui os emoji
 por `?` (detalhes na [seção 10.3](#103-codificação-do-terminal-e-os-marcadores)).
+
+### Projeto em pasta sincronizada (OneDrive, Dropbox)
+
+Com o projeto dentro de uma pasta sincronizada, o processo de sincronização mantém arquivos de
+`target/` abertos e o `mvn clean` falha:
+
+```
+Failed to clean project: Failed to delete ...\target\classes\br\com\camisetas\dominio
+```
+
+Por isso **nem o `demo.ps1` nem o `gerar-entrega.ps1` rodam `clean` por padrão**: quando a
+limpeza é solicitada, ela é tentada três vezes e o build segue mesmo se falhar, com aviso. As
+fases `verify` e `site` reescrevem os relatórios de qualquer forma, então o resultado continua
+correto.
+
+Se precisar de um build realmente limpo, há três saídas, em ordem de preferência:
+
+1. mover o projeto para fora da pasta sincronizada (ex.: `C:\dev\camisetas-sa`) — resolve de
+   vez e evita sincronizar milhares de arquivos de build;
+2. pausar a sincronização e rodar `.\demo.ps1 -Limpar`;
+3. apagar `target/` manualmente com o OneDrive pausado.
 
 Depois abra o painel `relatorios.html` na raiz do projeto, que concentra os três relatórios:
 

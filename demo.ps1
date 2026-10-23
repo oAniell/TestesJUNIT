@@ -15,8 +15,13 @@
     que aparecem corretamente em qualquer terminal.
 
 .PARAMETER Completo
-    Roda 'mvn clean verify site' (testes + cobertura + os tres relatorios web)
+    Roda 'mvn verify site' (testes + cobertura + os tres relatorios web)
     em vez de apenas 'mvn test'.
+
+.PARAMETER Limpar
+    Apaga target/ antes de construir. Nao e usado por padrao porque pastas
+    sincronizadas (OneDrive, Dropbox) travam arquivos e fazem o 'clean' falhar;
+    quando usado, a limpeza e tentada 3 vezes e o build segue mesmo se falhar.
 
 .PARAMETER ComRelatorios
     Abre o painel relatorios.html no navegador ao final, se os testes passarem.
@@ -41,7 +46,8 @@ param(
     [switch] $Completo,
     [switch] $ComRelatorios,
     [switch] $SemEmoji,
-    [switch] $ComInternet
+    [switch] $ComInternet,
+    [switch] $Limpar
 )
 
 $ErrorActionPreference = 'Continue'
@@ -76,10 +82,11 @@ $linha = '=' * 78
 try {
     Clear-Host
 
-    $argumentos = @('-B')
-    if (-not $ComInternet) { $argumentos += '-o' }
-    if ($Completo) { $argumentos += @('clean', 'verify', 'site') } else { $argumentos += 'test' }
-    $argumentos += "-Dtestes.marcadores=$marcadores"
+    $comuns = @('-B')
+    if (-not $ComInternet) { $comuns += '-o' }
+
+    $metas = if ($Completo) { @('verify', 'site') } else { @('test') }
+    $argumentos = $comuns + $metas + "-Dtestes.marcadores=$marcadores"
 
     Write-Host $linha -ForegroundColor DarkGray
     Write-Host '  CAMISETAS S.A. - TDD/BDD com JUnit 5 e Cucumber' -ForegroundColor Cyan
@@ -87,6 +94,36 @@ try {
     Write-Host $linha -ForegroundColor DarkGray
 
     $cronometro = [System.Diagnostics.Stopwatch]::StartNew()
+
+    # ----------------------------------------------------------------------
+    # Limpeza opcional e resiliente.
+    #
+    # Com o projeto dentro de uma pasta sincronizada (OneDrive, Dropbox), o
+    # processo de sincronizacao mantem handles abertos em target/ e o
+    # 'mvn clean' falha com "Failed to delete". Aqui a limpeza e tentada
+    # algumas vezes e, se nao der, o build segue sem ela: perder a limpeza e
+    # muito menos grave do que a demonstracao morrer na frente da turma.
+    # ----------------------------------------------------------------------
+    if ($Limpar) {
+        $limpou = $false
+        for ($tentativa = 1; $tentativa -le 3 -and -not $limpou; $tentativa++) {
+            & mvn @($comuns + 'clean') | Out-Null
+            if ($LASTEXITCODE -eq 0) {
+                $limpou = $true
+            } else {
+                Write-Host ("  Limpeza falhou (tentativa {0}/3) - arquivo travado por outro processo. Repetindo..." -f $tentativa) `
+                    -ForegroundColor Yellow
+                Start-Sleep -Seconds 2
+            }
+        }
+        if ($limpou) {
+            Write-Host '  Pasta target/ limpa.' -ForegroundColor DarkGray
+        } else {
+            Write-Host '  Aviso: seguindo sem limpar target/. Se a pasta do projeto estiver no OneDrive,' -ForegroundColor Yellow
+            Write-Host '         pause a sincronizacao ou mova o projeto para fora dela.' -ForegroundColor Yellow
+        }
+    }
+
     & mvn @argumentos
     $codigoSaida = $LASTEXITCODE
     $cronometro.Stop()
