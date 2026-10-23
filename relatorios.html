@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camisetas S.A. - Painel de relatorios de teste (TDD/BDD)</title>
+    <style>
+        :root {
+            --azul: #14467a;
+            --azul-claro: #e8f0f8;
+            --verde: #1d6f42;
+            --cinza: #3d4451;
+            --borda: #c9d2dd;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            padding: 2rem 1.5rem 3rem;
+            font-family: "Segoe UI", Tahoma, Verdana, sans-serif;
+            color: var(--cinza);
+            background: #f7f9fc;
+            line-height: 1.55;
+        }
+
+        main { max-width: 1040px; margin: 0 auto; }
+
+        h1 {
+            color: var(--azul);
+            font-size: 1.9rem;
+            margin: 0 0 .25rem;
+        }
+
+        .subtitulo { margin: 0 0 2rem; font-size: 1.05rem; }
+
+        h2 {
+            color: var(--azul);
+            font-size: 1.3rem;
+            border-bottom: 2px solid var(--borda);
+            padding-bottom: .4rem;
+            margin-top: 2.5rem;
+        }
+
+        .indicadores {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .indicador {
+            background: #fff;
+            border: 1px solid var(--borda);
+            border-left: 5px solid var(--verde);
+            border-radius: 6px;
+            padding: 1rem 1.1rem;
+        }
+
+        .indicador strong {
+            display: block;
+            font-size: 1.85rem;
+            color: var(--verde);
+            line-height: 1.1;
+        }
+
+        .indicador span { font-size: .92rem; }
+
+        .cartoes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.2rem;
+        }
+
+        .cartao {
+            background: #fff;
+            border: 1px solid var(--borda);
+            border-radius: 6px;
+            padding: 1.2rem 1.3rem;
+        }
+
+        .cartao h3 { margin: 0 0 .5rem; color: var(--azul); font-size: 1.1rem; }
+
+        .cartao p { margin: 0 0 1rem; font-size: .95rem; }
+
+        .cartao a {
+            display: inline-block;
+            background: var(--azul);
+            color: #fff;
+            text-decoration: none;
+            padding: .55rem 1rem;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .cartao a:hover, .cartao a:focus { background: #0d2f52; outline: 3px solid #ffb703; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            margin-top: .5rem;
+        }
+
+        caption { text-align: left; font-size: .95rem; padding-bottom: .5rem; }
+
+        th, td {
+            border: 1px solid var(--borda);
+            padding: .55rem .7rem;
+            text-align: left;
+            font-size: .93rem;
+        }
+
+        thead th { background: var(--azul-claro); color: var(--azul); }
+
+        tbody tr:nth-child(even) { background: #fbfcfe; }
+
+        code {
+            background: var(--azul-claro);
+            padding: .15rem .35rem;
+            border-radius: 3px;
+            font-size: .9em;
+        }
+
+        .aviso {
+            background: #fff8e1;
+            border: 1px solid #e8c547;
+            border-radius: 6px;
+            padding: 1rem 1.2rem;
+            margin-top: 1rem;
+            font-size: .95rem;
+        }
+
+        footer { margin-top: 3rem; font-size: .88rem; color: #65707f; }
+    </style>
+</head>
+<body>
+<main>
+    <h1>Camisetas S.A. &mdash; Painel de relatorios de teste</h1>
+    <p class="subtitulo">
+        Trabalho de TDD/BDD com JUnit 5, Cucumber 7 e JaCoCo &mdash; controle de producao de camisetas por lote.
+    </p>
+
+    <h2>Resumo da ultima execucao</h2>
+    <div class="indicadores">
+        <div class="indicador"><strong>182</strong><span>testes executados</span></div>
+        <div class="indicador"><strong>0</strong><span>falhas / erros</span></div>
+        <div class="indicador"><strong>100%</strong><span>cobertura de instrucoes</span></div>
+        <div class="indicador"><strong>100%</strong><span>cobertura de desvios (branches)</span></div>
+        <div class="indicador"><strong>145</strong><span>testes JUnit (unitarios + integracao)</span></div>
+        <div class="indicador"><strong>37</strong><span>cenarios BDD (Cucumber)</span></div>
+    </div>
+
+    <h2>Relatorios web</h2>
+    <div class="cartoes">
+        <article class="cartao">
+            <h3>1. Relatorio de execucao dos testes</h3>
+            <p>
+                Surefire Report: lista todas as classes, metodos de teste, cenarios BDD,
+                tempos de execucao e o teste ignorado com <code>@Disabled</code>.
+            </p>
+            <a href="target/site/surefire-report.html">Abrir Surefire Report</a>
+        </article>
+
+        <article class="cartao">
+            <h3>2. Relatorio de cobertura (Coverage)</h3>
+            <p>
+                JaCoCo: percentuais de cobertura por pacote, classe, metodo e linha,
+                com o codigo-fonte destacado em verde/vermelho.
+            </p>
+            <a href="target/site/jacoco/index.html">Abrir JaCoCo Coverage</a>
+        </article>
+
+        <article class="cartao">
+            <h3>3. Relatorio dos cenarios BDD</h3>
+            <p>
+                Cucumber HTML: funcionalidades, cenarios Gherkin em portugues e o
+                resultado de cada passo <em>Dado / Quando / Entao</em>.
+            </p>
+            <a href="target/cucumber-reports/relatorio-cucumber.html">Abrir Cucumber Report</a>
+        </article>
+    </div>
+
+    <div class="aviso">
+        <strong>Como gerar os relatorios:</strong> na raiz do projeto execute
+        <code>mvn clean verify site</code>. O comando roda os 182 testes, mede a cobertura,
+        aplica o criterio minimo de 95% e gera os tres relatorios acima.
+    </div>
+
+    <h2>Cobertura por pacote</h2>
+    <table>
+        <caption>Fonte: <code>target/site/jacoco/index.html</code> (JaCoCo 0.8.12)</caption>
+        <thead>
+        <tr>
+            <th scope="col">Pacote</th>
+            <th scope="col">Classes</th>
+            <th scope="col">Instrucoes</th>
+            <th scope="col">Desvios</th>
+            <th scope="col">Linhas</th>
+            <th scope="col">Metodos</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <th scope="row"><code>br.com.camisetas.dominio</code></th>
+            <td>4</td><td>100%</td><td>100%</td><td>105 / 105</td><td>36 / 36</td>
+        </tr>
+        <tr>
+            <th scope="row"><code>br.com.camisetas.fiscal</code></th>
+            <td>1</td><td>100%</td><td>100%</td><td>66 / 66</td><td>14 / 14</td>
+        </tr>
+        <tr>
+            <th scope="row"><code>br.com.camisetas.logistica</code></th>
+            <td>1</td><td>100%</td><td>100%</td><td>47 / 47</td><td>14 / 14</td>
+        </tr>
+        <tr>
+            <th scope="row"><code>br.com.camisetas.excecao</code></th>
+            <td>6</td><td>100%</td><td>n/a</td><td>18 / 18</td><td>9 / 9</td>
+        </tr>
+        <tr>
+            <th scope="row">Total</th>
+            <td>12</td><td>100% (1.152)</td><td>100% (100)</td><td>236 / 236</td><td>73 / 73</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h2>Classes testadas e suites de teste</h2>
+    <table>
+        <thead>
+        <tr>
+            <th scope="col">Classe testada</th>
+            <th scope="col">Suite de teste</th>
+            <th scope="col">Objetivo do enunciado</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <th scope="row"><code>Lote</code></th>
+            <td><code>LoteTest</code></td>
+            <td>1 &mdash; numero, data de fabricacao e adicao de itens</td>
+        </tr>
+        <tr>
+            <th scope="row"><code>ItemLote</code></th>
+            <td><code>ItemLoteTest</code></td>
+            <td>2 &mdash; cadastro de itens com tamanho e cor</td>
+        </tr>
+        <tr>
+            <th scope="row"><code>NotaFiscal</code></th>
+            <td><code>NotaFiscalTest</code></td>
+            <td>3 &mdash; emissao e totais por tamanho e por cor</td>
+        </tr>
+        <tr>
+            <th scope="row"><code>Despacho</code></th>
+            <td><code>DespachoTest</code></td>
+            <td>4 &mdash; codigo de validacao e preparacao para despacho</td>
+        </tr>
+        <tr>
+            <th scope="row"><code>Tamanho</code> / <code>Cor</code></th>
+            <td><code>TamanhoTest</code> / <code>CorTest</code></td>
+            <td>Apoio aos objetivos 2 e 3 (dominio de tamanhos e cores)</td>
+        </tr>
+        <tr>
+            <th scope="row">Hierarquia de excecoes</th>
+            <td><code>ExcecoesDeNegocioTest</code></td>
+            <td>Assertivas com excecoes personalizadas</td>
+        </tr>
+        <tr>
+            <th scope="row">Fluxo completo</th>
+            <td><code>FluxoProducaoCamisetaTest</code> + <code>ExecutaCenariosBddTest</code></td>
+            <td>Integracao dos 4 objetivos de ponta a ponta</td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+
+<footer>
+    <p>Projeto <code>br.com.camisetas:camisetas-sa:1.0.0</code> &mdash; Java 17, JUnit 5.10.2, Cucumber 7.15.0, JaCoCo 0.8.12.</p>
+</footer>
+</body>
+</html>

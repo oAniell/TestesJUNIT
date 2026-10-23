@@ -1,0 +1,15 @@
+target/
+*.log
+
+# Pacote de entrega (gerado por gerar-entrega.ps1)
+entrega/
+*.zip
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+bin/

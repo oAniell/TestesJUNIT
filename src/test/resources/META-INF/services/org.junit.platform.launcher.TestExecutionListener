@@ -1,0 +1,3 @@
+# Listener de console registrado automaticamente pelo JUnit Platform (ServiceLoader).
+# Imprime o andamento dos testes com marcadores de aprovado/reprovado e o resumo final.
+br.com.camisetas.suporte.RelatorioConsoleListener
