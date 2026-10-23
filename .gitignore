@@ -13,3 +13,4 @@ entrega/
 .project
 .settings/
 bin/
+*.ps1
